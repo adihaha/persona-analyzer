@@ -2,331 +2,217 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>人物分析器 · Persona Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --canvas: #eeece5; --surface: #fbfaf6; --surface-2: #fff;
-    --surface-soft: #e7e3da; --text: #15171c; --muted: #5e6875;
-    --quiet: #858b90; --border: #c9c4ba; --border-soft: #ddd8cf;
-    --accent: #6550b7; --accent-strong: #51399f;
-    --fact: #087e70; --analysis: #6550b7; --forecast: #94610d; --impact: #bd4b34;
-    --danger: #b53f39;
-    --radius-sm: 8px; --radius-md: 15px; --radius-lg: 26px;
-    --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    --mono: ui-monospace, "SF Mono", "Menlo", monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --canvas: #1a1918; --surface: #242320; --surface-2: #2e2d2a;
-      --surface-soft: #3a3936; --text: #e8e6e1; --muted: #9ca3af;
-      --quiet: #6b7280; --border: #3d3c3a; --border-soft: #2e2d2a;
-    }
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: var(--font); background: var(--canvas); color: var(--text);
-    line-height: 1.5; min-height: 100dvh; overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
-  .page { padding: 0 20px; max-width: 640px; margin: 0 auto; }
+:root{--bg:#efe7d2;--card:rgba(255,255,255,0.55);--card-border:rgba(21,20,15,0.06);--text:#15140f;--muted:#6b5e50;--quiet:#8a7a6a;--accent:#ed6f5c;--accent-soft:rgba(237,111,92,0.1);--green:#10b981;--green-bg:rgba(16,185,129,0.08);--red:#ef4444;--red-bg:rgba(239,68,68,0.08);--radius:12px;--radius-sm:8px;--font:'Inter',-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;--mono:ui-monospace,"SF Mono","Menlo",monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.page{max-width:480px;margin:0 auto;padding:0 16px 80px}
 
-  /* Topbar */
-  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 12px; border-bottom: 1px solid var(--border-soft); margin-bottom: 8px; }
-  .topbar-brand { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
-  .topbar-actions { display: flex; gap: 12px; align-items: center; }
-  .topbar-link { font-size: 11px; color: var(--quiet); text-decoration: none; cursor: pointer; background: none; border: none; font-family: var(--font); }
-  .topbar-link:hover { color: var(--accent); }
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0 10px}
+.topbar-brand{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text)}
+.topbar-link{font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);font-weight:500;padding:4px 8px;border-radius:8px}
+.topbar-link:active{background:rgba(21,20,15,0.06)}
 
-  /* Hero */
-  .hero { padding: 12px 0 20px; }
-  .hero-kicker { font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--fact); margin-bottom: 8px; }
-  .hero-title { font-size: 28px; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
-  .hero-desc { font-size: 14px; color: var(--muted); }
+/* API Card */
+.api-card{background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px}
+.api-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.api-summary span{font-size:11px;color:var(--muted);font-weight:500}
+.api-dot{width:7px;height:7px;border-radius:50%;background:rgba(21,20,15,0.12)}
+.api-dot.on{background:var(--green)}
+.api-body{margin-top:10px}
+.api-input{width:100%;padding:8px 10px;font-size:12px;font-family:var(--font);border:1px solid rgba(21,20,15,0.1);border-radius:8px;background:rgba(255,255,255,0.7);outline:none;color:var(--text);margin-bottom:6px}
+.api-input:focus{border-color:var(--accent);background:rgba(255,255,255,0.9)}
+.api-row{display:flex;gap:6px}
+.api-row .api-input{flex:1}
+.api-hint{font-size:9px;color:var(--quiet);margin-top:2px}
+.api-btn{background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:4px;width:100%}
+.api-btn:active{opacity:0.8}
 
-  /* Section */
-  .section { margin-bottom: 24px; }
-  .section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
-  .section-kicker { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--quiet); white-space: nowrap; }
-  .section-title { font-size: 18px; font-weight: 700; }
+/* Hero */
+.hero{text-align:center;padding:10px 0 16px}
+.hero-badge{display:inline-block;font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;background:var(--accent-soft);color:var(--accent);padding:3px 10px;border-radius:20px;margin-bottom:10px}
+.hero-title{font-size:22px;font-weight:700;line-height:1.2;margin-bottom:5px}
+.hero-desc{font-size:12px;color:var(--muted)}
 
-  /* Card */
-  .card {
-    background: var(--surface); border-radius: var(--radius-md);
-    border-top: 1px solid var(--border); padding: 20px; margin-bottom: 16px;
-  }
+/* Card */
+.card{background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:14px;padding:16px;margin-bottom:10px}
+.form-group{margin-bottom:10px}
+.form-label{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--quiet);margin-bottom:5px;display:block}
+.form-input,.form-textarea{width:100%;padding:9px 11px;font-size:13px;font-family:var(--font);border:1px solid rgba(21,20,15,0.1);border-radius:8px;background:rgba(255,255,255,0.5);outline:none;color:var(--text);transition:all 0.15s}
+.form-input:focus,.form-textarea:focus{border-color:var(--accent);background:rgba(255,255,255,0.8)}
+.form-textarea{min-height:160px;resize:none}
+.form-hint{font-size:10px;color:var(--quiet);margin-top:4px}
 
-  /* Form */
-  .form-group { margin-bottom: 14px; }
-  .form-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--quiet); margin-bottom: 6px; display: block; }
-  .form-input, .form-textarea {
-    width: 100%; padding: 12px 14px; font-size: 15px; font-family: var(--font);
-    background: var(--canvas); border: 1px solid var(--border-soft);
-    border-radius: var(--radius-sm); color: var(--text); line-height: 1.6;
-    transition: border-color 0.2s;
-  }
-  .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
-  .form-textarea { min-height: 200px; resize: vertical; }
-  .form-hint { font-size: 11px; color: var(--quiet); margin-top: 6px; line-height: 1.5; }
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 24px;font-size:13px;font-weight:600;font-family:var(--font);border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all 0.15s}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--text);color:var(--bg)}
+.btn-secondary{background:var(--card);color:var(--muted);border:1px solid rgba(21,20,15,0.08);backdrop-filter:blur(8px)}
+.btn-block{width:100%;justify-content:center}
+.btn-sm{padding:8px 14px;font-size:11px}
+.btn-lg{padding:14px;border-radius:var(--radius);font-size:13px}
 
-  /* Buttons */
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 14px 28px; font-size: 15px; font-weight: 600; font-family: var(--font);
-    border-radius: var(--radius-sm); border: none; cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent-strong); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-secondary { background: var(--surface-soft); color: var(--text); }
-  .btn-ghost { background: transparent; color: var(--accent); padding: 10px 14px; }
-  .btn-danger { background: rgba(181,63,57,0.1); color: var(--danger); }
-  .btn-block { width: 100%; justify-content: center; }
-  .btn-sm { padding: 8px 14px; font-size: 12px; }
+/* Loading */
+.loading-state{text-align:center;padding:60px 20px}
+.loading-spinner{display:inline-block;width:32px;height:32px;border:3px solid rgba(21,20,15,0.08);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--muted)}
+.loading-tip{font-size:12px;color:var(--quiet);margin-top:8px}
 
-  /* Loading */
-  .loading-state { text-align: center; padding: 60px 20px; }
-  .loading-spinner {
-    display: inline-block; width: 32px; height: 32px;
-    border: 3px solid var(--border-soft); border-top-color: var(--accent);
-    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: var(--muted); }
-  .loading-tip { font-size: 12px; color: var(--quiet); margin-top: 8px; }
+/* Result */
+.result-header{text-align:center;padding:8px 0 10px}
+.result-badge{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.result-title{font-size:18px;font-weight:700;margin-bottom:2px}
+.result-meta{font-size:10px;color:var(--quiet);margin-bottom:6px}
 
-  /* ===== Result Card ===== */
-  .result-card {
-    background: var(--surface); border-radius: var(--radius-lg);
-    border-top: 2px solid var(--accent); padding: 28px 20px;
-    box-shadow: 0 28px 65px rgb(56 49 38 / 14%);
-    margin-bottom: 20px;
-  }
-  .result-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .result-meta .tag { font-size: 10px; padding: 3px 10px; border-radius: 20px; background: var(--surface-soft); color: var(--muted); }
-  .result-meta .tag.accent { background: rgba(101,80,183,0.12); color: var(--accent); }
+.persona-card{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:14px;padding:18px 14px;margin-bottom:8px;text-align:center}
+.persona-avatar{width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;margin:0 auto 6px}
+.persona-name{font-size:16px;font-weight:700;margin-bottom:2px}
+.persona-type{display:inline-block;font-size:9px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:20px;margin-top:3px}
 
-  /* Persona Header */
-  .persona-header { text-align: center; margin-bottom: 24px; }
-  .persona-avatar {
-    width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px;
-    background: linear-gradient(135deg, var(--accent), var(--fact));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px; color: #fff; font-weight: 700;
-  }
-  .persona-name { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
-  .persona-type {
-    display: inline-block; margin-top: 6px; padding: 4px 14px;
-    border-radius: 20px; font-size: 11px; font-weight: 600;
-    background: rgba(101,80,183,0.12); color: var(--accent);
-  }
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.metric{background:var(--card);backdrop-filter:blur(8px);border-radius:10px;padding:10px;text-align:center}
+.metric-l{font-size:8px;color:var(--quiet);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+.metric-v{font-size:12px;font-weight:600}
 
-  /* Metric Grid */
-  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
-  .metric-item {
-    background: var(--canvas); border-radius: var(--radius-sm); padding: 12px;
-  }
-  .metric-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--quiet); margin-bottom: 4px; }
-  .metric-value { font-size: 14px; font-weight: 700; }
+.sec{margin-bottom:10px}
+.sec-title{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid rgba(237,111,92,0.1)}
 
-  /* Progress Bar */
-  .progress-bar { height: 4px; background: var(--surface-soft); border-radius: 2px; overflow: hidden; margin: 6px 0; }
-  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.traits{display:flex;flex-wrap:wrap;gap:5px}
+.trait{background:rgba(21,20,15,0.05);font-size:10px;font-weight:500;padding:4px 9px;border-radius:20px;color:var(--text)}
 
-  /* Radar */
-  .radar-wrap { display: flex; justify-content: center; padding: 16px 0; }
-  .radar-wrap svg { max-width: 260px; width: 100%; }
+.radar-wrap{display:flex;justify-content:center;padding:4px 0}
+.radar-wrap svg{max-width:220px;width:100%}
 
-  /* Detail Sections */
-  .detail-sections { margin-top: 20px; }
-  .detail-section { padding: 14px 0; border-bottom: 1px solid var(--border-soft); }
-  .detail-section:last-child { border-bottom: none; }
-  .detail-label { font-size: 9px; color: var(--accent); display: block; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase; }
-  .detail-text { font-size: 14px; color: var(--muted); line-height: 1.7; }
-  .detail-text strong { color: var(--text); font-weight: 600; }
+.val-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:2px}
+.val-t{background:var(--card);backdrop-filter:blur(8px);border:1px solid rgba(21,20,15,0.06);border-radius:8px;padding:7px 10px;font-size:11px}
+.val-t strong{color:var(--accent)}
+.val-m{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
+.val-m strong{color:var(--text)}
 
-  /* Section Divider in Result */
-  .result-divider {
-    display: flex; align-items: center; gap: 10px; margin: 20px 0 12px;
-    font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--quiet);
-  }
-  .result-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-soft); }
+.comm-flex{display:flex;gap:7px}
+.comm-side{flex:1;background:var(--card);backdrop-filter:blur(8px);border-radius:10px;padding:11px}
+.comm-side.do{border-left:3px solid var(--green)}
+.comm-side.dont{border-left:3px solid var(--red)}
+.comm-l{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.comm-l.do{color:var(--green)}
+.comm-l.dont{color:var(--red)}
+.comm-item{font-size:10px;color:var(--muted);padding:2px 0;line-height:1.5}
 
-  /* Pills */
-  .pills { display: flex; flex-wrap: wrap; wrap: wrap; gap: 7px; margin: 10px 0; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: var(--surface-soft); padding: 7px 10px;
-    border-radius: var(--radius-sm); font-size: 11px; color: var(--muted);
-  }
-  .pill strong { font-weight: 700; color: var(--text); }
+.strat-list{display:flex;flex-direction:column;gap:4px}
+.strat-item{display:flex;align-items:flex-start;gap:7px;padding:9px 11px;background:var(--card);backdrop-filter:blur(8px);border-radius:8px}
+.strat-n{width:17px;height:17px;background:var(--accent);color:#fff;font-size:8px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.strat-t{font-size:11px;color:var(--muted);line-height:1.5}
 
-  /* Tags */
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-  .tag { font-size: 10px; padding: 4px 10px; border-radius: 20px; background: var(--surface-soft); color: var(--muted); }
-  .tag.accent { background: rgba(101,80,183,0.12); color: var(--accent); }
-  .tag.fact { background: rgba(8,126,112,0.12); color: var(--fact); }
-  .tag.forecast { background: rgba(148,97,13,0.12); color: var(--forecast); }
-  .tag.impact { background: rgba(189,75,52,0.12); color: var(--impact); }
+.insight-box{background:var(--card);backdrop-filter:blur(8px);border-radius:10px;padding:12px}
+.insight-box p{font-size:11px;color:var(--muted);line-height:1.7}
 
-  /* Talk Card */
-  .talk-card {
-    background: var(--canvas); border-radius: var(--radius-sm);
-    padding: 12px 14px; margin: 8px 0;
-    border-left: 3px solid var(--accent);
-  }
-  .talk-card.warn { border-left-color: var(--impact); }
-  .talk-card.good { border-left-color: var(--fact); }
-  .talk-card .talk-label { font-size: 9px; color: var(--quiet); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
-  .talk-card .talk-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+.actions{display:flex;gap:7px;margin:12px 0}
+.actions .btn{flex:1}
 
-  /* History List */
-  .history-list { display: flex; flex-direction: column; gap: 8px; }
-  .history-item {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--surface); border-radius: var(--radius-sm);
-    padding: 12px 14px; cursor: pointer; border: 1px solid var(--border-soft);
-    transition: all 0.2s;
-  }
-  .history-item:hover { border-color: var(--accent); background: var(--surface-2); }
-  .history-item.active { border-color: var(--accent); background: rgba(101,80,183,0.06); }
-  .history-avatar {
-    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--fact));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; color: #fff; font-weight: 700;
-  }
-  .history-info { flex: 1; min-width: 0; }
-  .history-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .history-time { font-size: 11px; color: var(--quiet); font-family: var(--mono); }
-  .history-del { color: var(--quiet); cursor: pointer; font-size: 14px; padding: 4px; }
-  .history-del:hover { color: var(--danger); }
+/* History */
+.history-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px}
+.history-header h2{font-size:15px;font-weight:700}
+.history-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.history-item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:10px;cursor:pointer}
+.history-item:active{background:rgba(255,255,255,0.7)}
+.history-item.active{border-color:var(--accent);background:rgba(255,255,255,0.7)}
+.history-av{width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.history-info{flex:1;min-width:0}
+.history-name{font-size:12px;font-weight:600}
+.history-date{font-size:9px;color:var(--quiet);font-family:var(--mono)}
+.history-del{color:var(--quiet);cursor:pointer;font-size:13px;padding:4px}
+.history-del:active{color:var(--accent)}
 
-  /* Tabs */
-  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border-soft); margin-bottom: 16px; }
-  .tab {
-    padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--quiet);
-    cursor: pointer; border-bottom: 2px solid transparent;
-    transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none;
-    font-family: var(--font);
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+/* Footer */
+.footer{text-align:center;padding:16px 0;font-size:9px;color:var(--quiet)}
+.footer a{color:var(--accent);text-decoration:none}
 
-  /* Error */
-  .error-card {
-    background: rgba(181,63,57,0.08); border: 1px solid rgba(181,63,57,0.2);
-    border-radius: var(--radius-md); padding: 16px 20px;
-    font-size: 14px; color: var(--danger); margin-bottom: 16px;
-  }
+/* Error */
+.error-card{background:var(--red-bg);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius);padding:14px 16px;font-size:13px;color:var(--red);margin-bottom:12px}
 
-  /* Footer */
-  .footer { text-align: center; padding: 32px 0; color: var(--quiet); font-size: 11px; }
+/* Utility */
+.hidden{display:none!important}
+.anim{animation:fadeUp 0.35s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-  /* Animations */
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  .anim { animation: fadeUp 0.4s ease both; }
-
-  .hidden { display: none !important; }
-
-  /* Streaming cursor */
-  .streaming-cursor::after { content: '▊'; animation: blink 0.8s infinite; color: var(--accent); }
-  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+@media(max-width:360px){
+  .page{padding:0 12px 64px}
+  .comm-flex{flex-direction:column}
+}
 </style>
 </head>
 <body>
 <div class="page">
 
+  <!-- Topbar -->
   <nav class="topbar">
-    <div class="topbar-brand">🧠 人物分析器</div>
+    <div class="topbar-brand">人物分析器</div>
     <div class="topbar-actions">
-      <button class="topbar-link" onclick="toggleApi()">⚙️</button>
-      <button class="topbar-link" id="historyToggle" onclick="toggleHistory()">📂 记录</button>
+      <button class="topbar-link" id="historyToggle" onclick="toggleHistory()">记录</button>
     </div>
   </nav>
 
   <!-- API Config -->
-  <div class="hidden" id="apiConfig">
-    <div class="card" style="margin-bottom:16px">
-      <div class="form-group">
-        <label class="form-label">API 地址</label>
-        <input class="form-input" id="apiBase" placeholder="https://api.deepseek.com/v1">
+  <div class="api-card">
+    <div class="api-summary" onclick="toggleApi()">
+      <span id="apiStatusText">配置 API Key</span>
+      <span id="apiStatusDot" class="api-dot"></span>
+    </div>
+    <div class="api-body hidden" id="apiBody">
+      <input class="api-input" id="apiKey" type="password" placeholder="API Key (sk-...)" oninput="updateApiStatus()">
+      <div class="api-row">
+        <input class="api-input" id="apiBase" placeholder="API 地址" value="https://api.deepseek.com/v1">
+        <input class="api-input" id="modelName" placeholder="模型" value="deepseek-chat">
       </div>
-      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group">
-          <label class="form-label">模型</label>
-          <input class="form-input" id="modelName" placeholder="deepseek-chat">
-        </div>
-        <div class="form-group">
-          <label class="form-label">API Key</label>
-          <input class="form-input" id="apiKey" type="password" placeholder="sk-...">
-        </div>
-      </div>
-      <div class="form-hint">支持所有 OpenAI 兼容 API（DeepSeek、OpenAI、MiMo 等）。数据仅在浏览器本地处理。</div>
+      <div class="api-hint">支持 OpenAI 兼容 API。数据仅在浏览器本地处理。</div>
+      <button class="api-btn" onclick="saveApiConfig()">保存并收起</button>
     </div>
   </div>
 
   <!-- History Panel -->
   <div class="hidden" id="historyPanel">
-    <div class="section">
-      <div class="section-head">
-        <span class="section-kicker">HISTORY</span>
-        <h2 class="section-title">分析记录</h2>
+    <div style="margin-bottom:8px;padding-top:10px">
+      <div class="history-header">
+        <h2>分析记录</h2>
+        <button class="topbar-link" onclick="clearHistory()">清空记录</button>
       </div>
       <div class="history-list" id="historyList"></div>
-      <div style="margin-top:12px">
-        <button class="btn btn-ghost btn-sm" onclick="clearHistory()">🗑️ 清空记录</button>
-      </div>
     </div>
   </div>
 
-  <!-- ===== Input View ===== -->
+  <!-- Input View -->
   <div id="inputView">
-    <header class="hero">
-      <div class="hero-kicker">AI-POWERED ANALYSIS</div>
+    <div class="hero">
+      <div class="hero-badge">AI Personality Analysis</div>
       <h1 class="hero-title">描述你想分析的人</h1>
-      <p class="hero-desc">自由输入这个人的信息、做过的事、说过的话、决策方式，AI 会分析他的性格并告诉你如何与他沟通。</p>
-    </header>
-
-    <section class="section">
-      <div class="section-head">
-        <span class="section-kicker">01 / INPUT</span>
-        <h2 class="section-title">人物描述</h2>
+      <p class="hero-desc">自由输入这个人的言行举止，AI 会分析他的性格并告诉你如何与他相处。</p>
+    </div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">称呼 / 代号</label>
+        <input class="form-input" id="personName" placeholder="例：老王、我的老板、客户A">
       </div>
-      <div class="card">
-        <div class="form-group">
-          <label class="form-label">这个人的名字 / 代号</label>
-          <input class="form-input" id="personName" placeholder="例：老王、我的老板、客户A">
-        </div>
-        <div class="form-group">
-          <label class="form-label">关于这个人的所有信息</label>
-          <textarea class="form-textarea" id="personInfo" placeholder="尽可能详细地描述这个人，比如：
+      <div class="form-group">
+        <label class="form-label">关于这个人的所有信息</label>
+        <textarea class="form-textarea" id="personInfo" placeholder="尽可能详细地描述这个人，比如：
 
-• 他做过什么重要的决定？
-• 他在压力下会怎么反应？
-• 他说话的方式是怎样的？
-• 他重视什么、讨厌什么？
-• 他和别人相处时是什么样的？
-• 他有什么习惯或偏好？
-• 他做过什么让你印象深刻的事？
-• 他处理冲突的方式是怎样的？
+他做过什么重要的决定？他在压力下会怎么反应？他说话的方式是怎样的？他重视什么、讨厌什么？他和别人相处时是什么样的？
 
 写得越多越准确，不用组织语言，想到什么写什么。"></textarea>
-        </div>
-        <div class="form-hint">💡 提示：描述越具体，分析越准确。可以包括具体事件、对话、决策过程。</div>
+        <div class="form-hint">描述越具体，分析越准确。可以包括具体事件、对话、决策过程。</div>
       </div>
-    </section>
-
-    <div style="padding-bottom:32px;">
-      <button class="btn btn-primary btn-block" id="analyzeBtn" onclick="analyze()">🔮 开始分析</button>
     </div>
+    <button class="btn btn-primary btn-block btn-lg" id="analyzeBtn" onclick="analyze()">开始分析</button>
   </div>
 
-  <!-- Loading View -->
+  <!-- Loading -->
   <div id="loadingView" class="hidden">
     <div class="loading-state">
       <div class="loading-spinner"></div>
@@ -335,415 +221,200 @@
     </div>
   </div>
 
-  <!-- Result View -->
+  <!-- Result -->
   <div id="resultView" class="hidden"></div>
 
-  <!-- Error View -->
+  <!-- Error -->
   <div id="errorView" class="hidden">
     <div class="error-card" id="errorMsg"></div>
-    <button class="btn btn-secondary" onclick="showView('inputView')">← 返回</button>
+    <button class="btn btn-secondary btn-block" onclick="showView('inputView')">← 返回</button>
   </div>
 
-  <footer class="footer">
-    人物分析器 · AI 驱动 · 数据仅在浏览器本地处理
-  </footer>
+  <div class="footer">
+    所有数据仅保存在你的浏览器本地
+  </div>
 </div>
 
 <script>
 // ===== State =====
-let history = JSON.parse(localStorage.getItem('persona_history') || '[]');
+let history = JSON.parse(localStorage.getItem('persona_history')||'[]');
 let currentId = null;
 
 // ===== API Config =====
-function toggleApi() { document.getElementById('apiConfig').classList.toggle('hidden'); }
-function getApiConfig() {
-  const base = document.getElementById('apiBase').value.trim() || 'https://api.deepseek.com/v1';
-  const key = document.getElementById('apiKey').value.trim();
-  const model = document.getElementById('modelName').value.trim() || 'deepseek-chat';
-  localStorage.setItem('persona_api_key', key);
-  localStorage.setItem('persona_api_base', base);
-  localStorage.setItem('persona_api_model', model);
-  return { base, key, model };
+let apiConfigured = false;
+function toggleApi(){document.getElementById('apiBody').classList.toggle('hidden')}
+function saveApiConfig(){
+  const k=document.getElementById('apiKey').value.trim();
+  const b=document.getElementById('apiBase').value.trim()||'https://api.deepseek.com/v1';
+  const m=document.getElementById('modelName').value.trim()||'deepseek-chat';
+  localStorage.setItem('persona_api_key',k);
+  localStorage.setItem('persona_api_base',b);
+  localStorage.setItem('persona_api_model',m);
+  updateApiStatus();
+  document.getElementById('apiBody').classList.add('hidden');
 }
-function loadConfig() {
-  document.getElementById('apiKey').value = localStorage.getItem('persona_api_key') || '';
-  document.getElementById('apiBase').value = localStorage.getItem('persona_api_base') || 'https://api.deepseek.com/v1';
-  document.getElementById('modelName').value = localStorage.getItem('persona_api_model') || 'deepseek-chat';
+function updateApiStatus(){
+  const k=document.getElementById('apiKey').value.trim();
+  const dot=document.getElementById('apiStatusDot');
+  const text=document.getElementById('apiStatusText');
+  if(k){apiConfigured=true;dot.className='api-dot on';text.textContent='API Key: '+k.substring(0,8)+'...'+k.slice(-4)}
+  else{apiConfigured=false;dot.className='api-dot';text.textContent='配置 API Key'}
+}
+function loadConfig(){
+  const k=localStorage.getItem('persona_api_key')||'';
+  document.getElementById('apiKey').value=k;
+  document.getElementById('apiBase').value=localStorage.getItem('persona_api_base')||'https://api.deepseek.com/v1';
+  document.getElementById('modelName').value=localStorage.getItem('persona_api_model')||'deepseek-chat';
+  updateApiStatus();
+  if(!k)document.getElementById('apiBody').classList.remove('hidden');
 }
 
 // ===== Views =====
-function showView(view) {
-  ['inputView','loadingView','resultView','errorView'].forEach(id => {
-    document.getElementById(id).classList.toggle('hidden', id !== view);
-  });
-  window.scrollTo(0, 0);
-}
+function showView(v){['inputView','loadingView','resultView','errorView'].forEach(i=>{document.getElementById(i).classList.toggle('hidden',i!==v)});window.scrollTo(0,0)}
 
 // ===== History =====
-function toggleHistory() {
-  const panel = document.getElementById('historyPanel');
-  panel.classList.toggle('hidden');
-  if (!panel.classList.contains('hidden')) renderHistory();
+function toggleHistory(){const p=document.getElementById('historyPanel');p.classList.toggle('hidden');if(!p.classList.contains('hidden'))renderHistory()}
+function renderHistory(){
+  const l=document.getElementById('historyList');
+  if(!history.length){l.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--quiet);font-size:12px">暂无分析记录</div>';return}
+  l.innerHTML=history.map((h,i)=>`<div class="history-item ${currentId===h.id?'active':''}" onclick="viewHistory(${i})"><div class="history-av">${(h.name||'?')[0]}</div><div class="history-info"><div class="history-name">${h.name||'未命名'}</div><div class="history-date">${new Date(h.time).toLocaleString('zh-CN')}</div></div><span class="history-del" onclick="event.stopPropagation();deleteHistory(${i})">×</span></div>`).join('');
 }
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  if (history.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--quiet);font-size:13px">暂无分析记录</div>';
-    return;
-  }
-  list.innerHTML = history.map((h, i) => `
-    <div class="history-item ${currentId === h.id ? 'active' : ''}" onclick="viewHistory(${i})">
-      <div class="history-avatar">${(h.name||'?')[0]}</div>
-      <div class="history-info">
-        <div class="history-name">${h.name || '未命名'}</div>
-        <div class="history-time">${new Date(h.time).toLocaleString('zh-CN')}</div>
-      </div>
-      <span class="history-del" onclick="event.stopPropagation();deleteHistory(${i})">×</span>
-    </div>
-  `).join('');
-}
-function viewHistory(i) {
-  const h = history[i];
-  if (!h) return;
-  currentId = h.id;
-  renderResult(h);
-  showView('resultView');
-  document.getElementById('historyPanel').classList.add('hidden');
-}
-function deleteHistory(i) {
-  history.splice(i, 1);
-  saveHistory();
-  renderHistory();
-}
-function clearHistory() {
-  if (!confirm('确定清空所有分析记录？')) return;
-  history = [];
-  saveHistory();
-  renderHistory();
-}
-function saveHistory() {
-  localStorage.setItem('persona_history', JSON.stringify(history));
+function viewHistory(i){const h=history[i];if(!h)return;currentId=h.id;renderResult(h);showView('resultView');document.getElementById('historyPanel').classList.add('hidden')}
+function deleteHistory(i){history.splice(i,1);saveHistory();renderHistory()}
+function clearHistory(){if(!confirm('确定清空所有分析记录？'))return;history=[];saveHistory();renderHistory()}
+function saveHistory(){localStorage.setItem('persona_history',JSON.stringify(history))}
+
+// ===== Radar =====
+function buildRadarSVG(scores){
+  const labels=['分析力','领导力','社交力','共情力','稳定性','创造力'];
+  const keys=['analytical','leadership','social','empathy','stability','creativity'];
+  const n=6,cx=110,cy=110,r=78;
+  const v=(i,rad)=>{const a=(Math.PI*2*i/n)-Math.PI/2;return{x:cx+rad*Math.cos(a),y:cy+rad*Math.sin(a)}};
+  const pts=(s,iv)=>Array.from({length:n},(_,i)=>v(i,iv?r*s[keys[i]]/100:r*s)).map(p=>`${p.x},${p.y}`).join(' ');
+  const grid=[0.25,0.5,0.75,1.0].map(s=>`<polygon points="${pts(s,false)}" fill="none" stroke="rgba(21,20,15,0.08)" stroke-width="0.5"/>`).join('');
+  const lines=Array.from({length:n},(_,i)=>{const p=v(i,r);return`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="rgba(21,20,15,0.05)" stroke-width="0.5"/>`}).join('');
+  const data=`<polygon points="${pts(scores,true)}" fill="rgba(237,111,92,0.12)" stroke="var(--accent)" stroke-width="2"/>`;
+  const dots=Array.from({length:n},(_,i)=>{const p=v(i,r*scores[keys[i]]/100);return`<circle cx="${p.x}" cy="${p.y}" r="3" fill="var(--accent)" stroke="rgba(239,235,210,0.8)" stroke-width="1.5"/>`}).join('');
+  const texts=labels.map((l,i)=>{const p=v(i,r+18);return`<text x="${p.x}" y="${p.y}" text-anchor="middle" font-size="8" fill="var(--muted)" font-weight="500" font-family="var(--font)">${l}</text>`}).join('');
+  return `<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">${grid}${lines}${data}${dots}${texts}</svg>`;
 }
 
-// ===== System Prompt =====
-const SYSTEM_PROMPT = `你是一个专业的行为心理学分析师和沟通策略顾问。根据用户提供的关于某个人的信息，进行深度分析。
+// ===== Render Result =====
+function renderResult(record){
+  const d=record.result,p=d.personality||{},v=d.values||{},r=d.radar||{},c=d.communication||{},ins=d.insights||{};
+  const rc=v.risk_level==='高'?'var(--red)':v.risk_level==='中'?'#e8a317':'var(--green)';
+  document.getElementById('resultView').innerHTML=`
+    <div class="result-header">
+      <div class="result-badge">Analysis Complete</div>
+      <div class="result-title">${record.name} 的人物画像</div>
+      <div class="result-meta">${new Date(record.time).toLocaleString('zh-CN')} · AI 分析报告</div>
+    </div>
+    <div class="persona-card anim">
+      <div class="persona-avatar">${(record.name||'?')[0]}</div>
+      <div class="persona-name">${record.name}</div>
+      <div class="persona-type">${p.type||'分析中'}</div>
+    </div>
+    <div class="metrics anim" style="animation-delay:0.05s">
+      <div class="metric"><div class="metric-l">MBTI</div><div class="metric-v">${p.mbti||'—'}</div></div>
+      <div class="metric"><div class="metric-l">风险偏好</div><div class="metric-v" style="color:${rc}">${v.risk_level||'—'}</div></div>
+      <div class="metric"><div class="metric-l">决策风格</div><div class="metric-v" style="font-size:10px">${v.decision_style||'—'}</div></div>
+      <div class="metric"><div class="metric-l">人格类型</div><div class="metric-v" style="font-size:10px">${p.type||'—'}</div></div>
+    </div>
+    <div class="sec anim" style="animation-delay:0.1s">
+      <div class="sec-title">核心特质</div>
+      <div class="traits">${(p.traits||[]).map(t=>`<span class="trait">${t}</span>`).join('')}</div>
+    </div>
+    <div class="sec anim" style="animation-delay:0.15s">
+      <div class="sec-title">性格雷达</div>
+      <div class="radar-wrap">${buildRadarSVG(r)}</div>
+    </div>
+    <div class="sec anim" style="animation-delay:0.2s">
+      <div class="sec-title">价值驱动</div>
+      <div class="val-wrap">${(v.core_values||[]).map(val=>`<div class="val-t"><strong>${val}</strong></div>`).join('')}</div>
+      <div class="val-m"><strong>驱动：</strong>${(v.motivators||[]).join('、')}<br><strong>抗拒：</strong>${(v.demotivators||[]).join('、')}</div>
+    </div>
+    <div class="sec anim" style="animation-delay:0.25s">
+      <div class="sec-title">沟通策略</div>
+      <div class="comm-flex">
+        <div class="comm-side do"><div class="comm-l do">这样说</div>${(c.recommended_phrases||[]).map(i=>`<div class="comm-item">${i}</div>`).join('')}</div>
+        <div class="comm-side dont"><div class="comm-l dont">别这样说</div>${(c.avoid_phrases||[]).map(i=>`<div class="comm-item">${i}</div>`).join('')}</div>
+      </div>
+    </div>
+    <div class="sec anim" style="animation-delay:0.3s">
+      <div class="sec-title">行动策略</div>
+      <div class="strat-list">${(c.strategies||['用数据和事实说话','直接给方案','尊重他的专业判断','承诺的事一定要做到']).map((s,i)=>`<div class="strat-item"><div class="strat-n">${i+1}</div><div class="strat-t">${s}</div></div>`).join('')}</div>
+    </div>
+    <div class="sec anim" style="animation-delay:0.35s">
+      <div class="sec-title">深层洞察</div>
+      <div class="insight-box"><p>${ins.hidden_patterns||'暂无数据'}</p></div>
+    </div>
+    <div class="actions anim" style="animation-delay:0.4s">
+      <button class="btn btn-secondary" onclick="newAnalysis()">分析新人物</button>
+      <button class="btn btn-primary" onclick="copyResult()">复制报告</button>
+    </div>`;
+}
+function newAnalysis(){document.getElementById('personName').value='';document.getElementById('personInfo').value='';showView('inputView')}
+function copyResult(){const c=document.querySelector('.persona-card');if(c)navigator.clipboard.writeText(c.innerText).then(()=>alert('报告已复制！')).catch(()=>alert('复制失败'))}
+
+// ===== Analyze =====
+const SYSTEM_PROMPT=`你是一个专业的行为心理学分析师和沟通策略顾问。根据用户提供的关于某个人的信息，进行深度分析。
 
 请严格按以下 JSON 格式输出（不要输出其他内容）：
 
 {
-  "personality": {
-    "type": "人格类型名称（如：战略型思考者、感性行动派 等，2-4字）",
-    "traits": ["核心特质1", "核心特质2", "核心特质3", "核心特质4", "核心特质5"],
-    "mbti": "最可能的MBTI类型（如INTJ）",
-    "introvert_score": 0-100的数字，越高越内向,
-    "emotional_score": 0-100的数字，越高越情绪化,
-    "openness_score": 0-100的数字，越高越开放
+  "personality":{
+    "type":"人格类型名称（如：战略型思考者、感性行动派 等，2-4字）",
+    "traits":["核心特质1","核心特质2","核心特质3","核心特质4","核心特质5"],
+    "mbti":"最可能的MBTI类型（如INTJ）",
+    "introvert_score":0-100, "emotional_score":0-100, "openness_score":0-100
   },
-  "values": {
-    "core_values": ["核心价值1", "核心价值2", "核心价值3"],
-    "decision_style": "决策风格描述（一句话）",
-    "risk_level": "高/中/低",
-    "motivators": ["激励因素1", "激励因素2"],
-    "demotivators": ["抵触因素1", "抵触因素2"]
+  "values":{
+    "core_values":["核心价值1","核心价值2","核心价值3"],
+    "decision_style":"决策风格描述（一句话）",
+    "risk_level":"高/中/低",
+    "motivators":["激励因素1","激励因素2"],
+    "demotivators":["抵触因素1","抵触因素2"]
   },
-  "radar": {
-    "analytical": 0-100,
-    "social": 0-100,
-    "leadership": 0-100,
-    "creativity": 0-100,
-    "stability": 0-100,
-    "empathy": 0-100
+  "radar":{
+    "analytical":0-100,"leadership":0-100,"social":0-100,"empathy":0-100,"stability":0-100,"creativity":0-100
   },
-  "communication": {
-    "best_approach": "最佳沟通方式的详细描述（2-3句话）",
-    "recommended_phrases": ["推荐话术1", "推荐话术2", "推荐话术3", "推荐话术4"],
-    "avoid_phrases": ["雷区1", "雷区2", "雷区3", "雷区4"],
-    "persuasion_key": "说服他的关键（2-3句话）",
-    "conflict_handling": "冲突处理策略（2-3句话）"
+  "communication":{
+    "best_approach":"最佳沟通方式的详细描述（2-3句话）",
+    "recommended_phrases":["推荐话术1","推荐话术2","推荐话术3"],
+    "avoid_phrases":["雷区1","雷区2","雷区3"],
+    "strategies":["策略1","策略2","策略3","策略4"],
+    "conflict_handling":"冲突处理策略（2-3句话）"
   },
-  "insights": {
-    "hidden_patterns": "他行为模式中隐藏的东西（2-3句话）",
-    "blind_spots": "他可能的盲点或弱点（1-2句话）",
-    "appeal_key": "什么最能打动他（1-2句话）"
+  "insights":{
+    "hidden_patterns":"他行为模式中隐藏的东西（2-3句话）",
+    "blind_spots":"他可能的盲点或弱点",
+    "appeal_key":"什么最能打动他"
   }
 }
 
-要求：
-1. 分析必须基于用户提供的具体信息，引用原文支撑
-2. 分析要具体可操作，不要泛泛而谈
-3. 话术示例要像真人会说的话，不要太书面
-4. 雷区要具体，不要笼统的"不要说坏话"`;
+要求：分析必须基于用户提供的具体信息。话术示例要像真人会说的话。雷区要具体不要笼统。`;
 
-// ===== Analyze =====
-async function analyze() {
-  const name = document.getElementById('personName').value.trim();
-  const info = document.getElementById('personInfo').value.trim();
-  if (!info) { alert('请至少输入一些关于这个人的描述！'); return; }
-
-  const { base, key, model } = getApiConfig();
-  if (!key) { document.getElementById('apiConfig').classList.remove('hidden'); alert('请先配置 API Key！'); return; }
-
+async function analyze(){
+  const n=document.getElementById('personName').value.trim(),i=document.getElementById('personInfo').value.trim();
+  if(!i){alert('请至少输入一些关于这个人的描述！');return}
+  const b=document.getElementById('apiBase').value.trim()||'https://api.deepseek.com/v1',k=document.getElementById('apiKey').value.trim(),m=document.getElementById('modelName').value.trim()||'deepseek-chat';
+  if(!k){document.getElementById('apiBody').classList.remove('hidden');alert('请先配置 API Key');return}
   showView('loadingView');
-
-  try {
-    const response = await fetch(`${base}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-      body: JSON.stringify({
-        model, temperature: 0.7, max_tokens: 4000,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: `请分析以下人物：\n\n**名字/代号：** ${name || '未命名'}\n\n**关于这个人的信息：**\n\n${info}` },
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`API 请求失败 (${response.status}): ${err}`);
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '';
-
-    // Parse JSON from response
-    let parsed;
-    try {
-      // Try to extract JSON from markdown code block
-      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, content];
-      parsed = JSON.parse(jsonMatch[1].trim());
-    } catch (e) {
-      throw new Error('AI 返回的内容无法解析为 JSON，请重试。');
-    }
-
-    // Save to history
-    const record = {
-      id: Date.now(),
-      time: new Date().toISOString(),
-      name: name || '未命名',
-      info: info,
-      result: parsed,
-    };
-    history.unshift(record);
-    if (history.length > 20) history = history.slice(0, 20);
-    saveHistory();
-    currentId = record.id;
-
-    renderResult(record);
-    showView('resultView');
-
-  } catch (err) {
-    showView('errorView');
-    document.getElementById('errorMsg').textContent = `❌ ${err.message}`;
-  }
-}
-
-// ===== Render Result =====
-function renderResult(record) {
-  const d = record.result;
-  const p = d.personality || {};
-  const v = d.values || {};
-  const r = d.radar || {};
-  const c = d.communication || {};
-  const ins = d.insights || {};
-
-  const radarSVG = buildRadarSVG(r);
-  const riskColor = v.risk_level === '高' ? 'var(--impact)' : v.risk_level === '中' ? 'var(--forecast)' : 'var(--fact)';
-
-  document.getElementById('resultView').innerHTML = `
-    <header class="hero">
-      <div class="hero-kicker">ANALYSIS COMPLETE</div>
-      <h1 class="hero-title">${record.name} 的人物画像</h1>
-      <p class="hero-desc">${new Date(record.time).toLocaleString('zh-CN')} · AI 分析报告</p>
-    </header>
-
-    <!-- Main Card -->
-    <div class="result-card anim">
-      <!-- Header -->
-      <div class="persona-header">
-        <div class="persona-avatar">${(record.name||'?')[0]}</div>
-        <div class="persona-name">${record.name}</div>
-        <div class="persona-type">${p.type || '分析中'}</div>
-      </div>
-
-      <!-- Metrics -->
-      <div class="metric-grid">
-        <div class="metric-item">
-          <div class="metric-label">MBTI 倾向</div>
-          <div class="metric-value">${p.mbti || '—'}</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-label">风险偏好</div>
-          <div class="metric-value" style="color:${riskColor}">${v.risk_level || '—'}</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-label">决策风格</div>
-          <div class="metric-value" style="font-size:12px">${v.decision_style || '—'}</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-label">人格类型</div>
-          <div class="metric-value" style="font-size:12px">${p.type || '—'}</div>
-        </div>
-      </div>
-
-      <!-- Sliders -->
-      <div class="result-divider">性格维度</div>
-      ${renderSlider('内向 ← → 外向', 100 - (p.introvert_score||50), 'var(--accent)')}
-      ${renderSlider('理性 ← → 感性', p.emotional_score||50, 'var(--forecast)')}
-      ${renderSlider('保守 ← → 开放', p.openness_score||50, 'var(--fact)')}
-
-      <!-- Core Traits -->
-      <div class="result-divider">核心特质</div>
-      <div class="pills">
-        ${(p.traits||[]).map(t => `<span class="pill">${t}</span>`).join('')}
-      </div>
-
-      <!-- Values -->
-      <div class="result-divider">价值驱动</div>
-      <div class="tags">
-        ${(v.core_values||[]).map(val => `<span class="tag accent">${val}</span>`).join('')}
-      </div>
-      <div style="margin-top:10px">
-        <div class="detail-text"><strong>🎯 激励因素：</strong>${(v.motivators||[]).join('、')}</div>
-        <div class="detail-text" style="margin-top:4px"><strong>🚫 抵触因素：</strong>${(v.demotivators||[]).join('、')}</div>
-      </div>
-
-      <!-- Radar -->
-      <div class="result-divider">能力雷达</div>
-      <div class="radar-wrap">${radarSVG}</div>
-
-      <!-- Communication -->
-      <div class="result-divider">💬 沟通策略</div>
-
-      <div class="detail-section" style="border:none;padding-top:8px">
-        <span class="detail-label">最佳沟通方式</span>
-        <p class="detail-text">${c.best_approach || ''}</p>
-      </div>
-
-      <div class="detail-section">
-        <span class="detail-label">✅ 推荐话术</span>
-        ${(c.recommended_phrases||[]).map(p => `
-          <div class="talk-card good">
-            <div class="talk-text">"${p}"</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <div class="detail-section">
-        <span class="detail-label">⚠️ 沟通雷区</span>
-        ${(c.avoid_phrases||[]).map(p => `
-          <div class="talk-card warn">
-            <div class="talk-text">${p}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <div class="detail-section">
-        <span class="detail-label">说服关键</span>
-        <p class="detail-text">${c.persuasion_key || ''}</p>
-      </div>
-
-      <div class="detail-section">
-        <span class="detail-label">冲突处理</span>
-        <p class="detail-text">${c.conflict_handling || ''}</p>
-      </div>
-
-      <!-- Insights -->
-      <div class="result-divider">🔍 深层洞察</div>
-      <div class="detail-section" style="border:none;padding-top:8px">
-        <span class="detail-label">隐藏的行为模式</span>
-        <p class="detail-text">${ins.hidden_patterns || ''}</p>
-      </div>
-      <div class="detail-section">
-        <span class="detail-label">潜在盲点</span>
-        <p class="detail-text">${ins.blind_spots || ''}</p>
-      </div>
-      <div class="detail-section">
-        <span class="detail-label">打动他的关键</span>
-        <p class="detail-text">${ins.appeal_key || ''}</p>
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div style="display:flex;gap:10px;padding:20px 0 32px;">
-      <button class="btn btn-secondary" onclick="newAnalysis()">🔮 分析新人物</button>
-      <button class="btn btn-primary" onclick="copyResult()">📋 复制报告</button>
-    </div>
-  `;
-}
-
-function renderSlider(label, value, color) {
-  value = Math.max(0, Math.min(100, value));
-  return `
-    <div style="margin:8px 0">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--quiet);margin-bottom:4px">
-        <span>${label}</span>
-        <span style="font-family:var(--mono)">${value}%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:${value}%;background:${color}"></div>
-      </div>
-    </div>
-  `;
-}
-
-function newAnalysis() {
-  document.getElementById('personName').value = '';
-  document.getElementById('personInfo').value = '';
-  showView('inputView');
-}
-
-// ===== Radar SVG =====
-function buildRadarSVG(scores) {
-  const traits = ['分析力','社交力','领导力','创造力','稳定性','共情力'];
-  const keys = ['analytical','social','leadership','creativity','stability','empathy'];
-  const n = traits.length;
-  const cx = 130, cy = 130, r = 100;
-
-  const gridCircles = [0.2,0.4,0.6,0.8,1.0].map(s => {
-    const pts = traits.map((_, i) => {
-      const a = (Math.PI*2*i/n) - Math.PI/2;
-      return `${cx+r*s*Math.cos(a)},${cy+r*s*Math.sin(a)}`;
-    }).join(' ');
-    return `<polygon points="${pts}" fill="none" stroke="var(--border-soft)" stroke-width="0.5"/>`;
-  }).join('');
-
-  const gridLines = traits.map((_, i) => {
-    const a = (Math.PI*2*i/n) - Math.PI/2;
-    return `<line x1="${cx}" y1="${cy}" x2="${cx+r*Math.cos(a)}" y2="${cy+r*Math.sin(a)}" stroke="var(--border-soft)" stroke-width="0.5"/>`;
-  }).join('');
-
-  const points = keys.map((k, i) => {
-    const a = (Math.PI*2*i/n) - Math.PI/2;
-    const v = (scores[k]||50) / 100;
-    return { x: cx+r*v*Math.cos(a), y: cy+r*v*Math.sin(a),
-             lx: cx+(r+22)*Math.cos(a), ly: cy+(r+22)*Math.sin(a) };
-  });
-
-  const dataPoly = points.map(p => `${p.x},${p.y}`).join(' ');
-  const dots = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`).join('');
-  const labels = points.map((p, i) => {
-    const anchor = p.lx < cx-5 ? 'end' : p.lx > cx+5 ? 'start' : 'middle';
-    return `<text x="${p.lx}" y="${p.ly}" text-anchor="${anchor}" dominant-baseline="middle" font-size="10" fill="var(--muted)" font-family="var(--font)">${traits[i]}</text>`;
-  }).join('');
-
-  return `<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
-    ${gridCircles}${gridLines}
-    <polygon points="${dataPoly}" fill="rgba(101,80,183,0.15)" stroke="var(--accent)" stroke-width="2"/>
-    ${dots}${labels}
-  </svg>`;
-}
-
-// ===== Copy =====
-function copyResult() {
-  const card = document.querySelector('.result-card');
-  if (!card) return;
-  navigator.clipboard.writeText(card.innerText).then(() => alert('报告已复制！')).catch(() => alert('复制失败'));
+  try{
+    const res=await fetch(b+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:m,temperature:0.7,max_tokens:4000,messages:[{role:'system',content:SYSTEM_PROMPT},{role:'user',content:'请分析以下人物：\n\n**名字/代号：** '+(n||'未命名')+'\n\n**关于这个人的信息：**\n\n'+i}]})});
+    if(!res.ok){const e=await res.text();throw new Error('API 请求失败 ('+res.status+'): '+e)}
+    const d=await res.json(),ct=d.choices?.[0]?.message?.content||'';
+    let pa;try{const jm=ct.match(/```(?:json)?\s*([\s\S]*?)```/)||[null,ct];pa=JSON.parse(jm[1].trim())}catch(e){throw new Error('AI 返回的内容无法解析为 JSON，请重试。')}
+    const rec={id:Date.now(),time:new Date().toISOString(),name:n||'未命名',info:i,result:pa};
+    history.unshift(rec);if(history.length>20)history=history.slice(0,20);saveHistory();currentId=rec.id;
+    renderResult(rec);showView('resultView');
+  }catch(err){showView('errorView');document.getElementById('errorMsg').textContent='错误：'+err.message}
 }
 
 // Init
 loadConfig();
 showView('inputView');
+document.getElementById('historyToggle').textContent='记录';
 </script>
 </body>
 </html>
