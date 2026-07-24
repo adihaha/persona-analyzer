@@ -357,13 +357,15 @@ function newAnalysis(){document.getElementById('personName').value='';document.g
 function copyResult(){const c=document.querySelector('.persona-card');if(c)navigator.clipboard.writeText(c.innerText).then(()=>alert('报告已复制！')).catch(()=>alert('复制失败'))}
 
 // ===== Analyze =====
-const SYSTEM_PROMPT=`你是一个专业的行为心理学分析师和沟通策略顾问。根据用户提供的关于某个人的信息，进行深度分析。
+const SYSTEM_PROMPT=`你是一个世界顶级的性格解码专家。用户会描述某个人的言行举止，你需要从细节中解码他是什么样的人，并告诉用户「怎样跟这种人相处」。
+
+你的输出必须精准、毒辣但不刻薄。用生动的比喻代替学术术语。标签要让人看了会心一笑又觉得说到心坎里。
 
 请严格按以下 JSON 格式输出（不要输出其他内容）：
 
 {
   "personality":{
-    "type":"人格类型名称（如：战略型思考者、感性行动派 等，2-4字）",
+    "type":"人格类型，用比喻不用形容词，4字以内。例如：狮子型、变色龙型、空想家",
     "traits":["核心特质1","核心特质2","核心特质3","核心特质4","核心特质5"],
     "mbti":"最可能的MBTI类型（如INTJ）",
     "introvert_score":0-100, "emotional_score":0-100, "openness_score":0-100
@@ -379,20 +381,26 @@ const SYSTEM_PROMPT=`你是一个专业的行为心理学分析师和沟通策�
     "analytical":0-100,"leadership":0-100,"social":0-100,"empathy":0-100,"stability":0-100,"creativity":0-100
   },
   "communication":{
-    "best_approach":"最佳沟通方式的详细描述（2-3句话）",
+    "best_approach":"最佳沟通策略（2-3句话）",
     "recommended_phrases":["推荐话术1","推荐话术2","推荐话术3"],
-    "avoid_phrases":["雷区1","雷区2","雷区3"],
-    "strategies":["策略1","策略2","策略3","策略4"],
+    "avoid_phrases":["禁忌话术1","禁忌话术2","禁忌话术3"],
+    "strategies":["行动策略1","行动策略2","行动策略3","行动策略4"],
     "conflict_handling":"冲突处理策略（2-3句话）"
   },
   "insights":{
-    "hidden_patterns":"他行为模式中隐藏的东西（2-3句话）",
-    "blind_spots":"他可能的盲点或弱点",
-    "appeal_key":"什么最能打动他"
+    "hidden_patterns":"他行为模式里隐藏的真实动机（2-3句话），要敏锐",
+    "blind_spots":"他自己都没意识到的盲点",
+    "appeal_key":"什么最能打动他，一句到位"
   }
 }
 
-要求：分析必须基于用户提供的具体信息。话术示例要像真人会说的话。雷区要具体不要笼统。`;
+要求：
+1. 分析必须基于用户提供的具体信息，引用原文支撑
+2. 标签用比喻不用形容词（狮子型 ✓ 强势 ✗）
+3. 话术示例要像真人会说的话，不要书面语
+4. 雷区要具体，不要笼统的"不要说坏话"
+5. 深层洞察要敏锐，点出对方自己都意识不到的东西
+6. 分析的最终目的是帮用户理解「怎么跟这种人相处」`;
 
 async function analyze(){
   const n=document.getElementById('personName').value.trim(),i=document.getElementById('personInfo').value.trim();
